@@ -7,29 +7,44 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform shootPoint;
     [SerializeField] private Bullet bulletPrefab;
     [SerializeField] private float rotateSpeed;
-    private Vector3 rotationVector = Vector3.zero;
+    private Quaternion target = Quaternion.Euler(0, 0, 0);
+    private bool isSlerping = false;
     private void Update()
-    {
+    {   
         if (Input.GetKeyDown(KeyCode.W))
         {
-            rotationVector = new Vector3(0, 90, 0);
+            target = Quaternion.Euler(0, 0, 90);
         } 
         else if (Input.GetKeyDown(KeyCode.A))
         {
-            rotationVector = new Vector3(0, 180, 0);
+            target = Quaternion.Euler(0, 0, 180);
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
-            rotationVector = new Vector3(0, -90, 0);
+            target = Quaternion.Euler(0, 0, -90);
         }
         else if (Input.GetKeyDown(KeyCode.D))
         {
-            rotationVector = new Vector3(0, 0, 0);
+            target = Quaternion.Euler(0, 0, 0);
         }
-        //transform.right = Vector3.Slerp(transform.right, rotationVector, rotateSpeed * Time.deltaTime);
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime * rotateSpeed);
+
+        if (Quaternion.Angle(transform.rotation, target) < 4f)
+        {
+            isSlerping = false;
+        }
+        else
+        {
+            isSlerping = true;
+        }
+
         if (Input.GetKeyDown(KeyCode.E))
         {
-            Instantiate(bulletPrefab, shootPoint.position, transform.rotation);
+            if (!isSlerping)
+            {
+                Instantiate(bulletPrefab, shootPoint.position, transform.rotation);
+            }
         }
     }
 }
